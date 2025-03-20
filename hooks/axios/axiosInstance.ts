@@ -9,8 +9,15 @@ export const getToken = () => {
 
 export const getAuthorizationHeader = () => `${getToken()}`;
 // Create an Axios instance with default configurations
+// const axiosInstance: AxiosInstance = axios.create({
+//   baseURL: process.env.NEXT_PUBLIC_API_URL||"https://ssonline.shellcode.cloud",
+//   headers: {
+//     "Content-Type": "application/json",
+//     Authorization: getAuthorizationHeader(),
+//   },
+// });
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || "https://ssonline.shellcode.cloud"}/api/v1`,
   headers: {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
