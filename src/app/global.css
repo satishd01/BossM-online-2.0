@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
+
+::selection {
+  background-color: #5fb3eb; /* Change this to your desired highlight color */
+  color: #000000; /* Change the text color if needed */
+}
