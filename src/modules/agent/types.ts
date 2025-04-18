@@ -9,4 +9,5 @@ export type editAgentTypes = {
   email: string;
   phoneNumber: string;
   fullName: string;
+  status: string; // Add the status property here
 };
