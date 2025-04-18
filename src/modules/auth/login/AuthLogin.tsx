@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Stack } from "@mui/material";
+import React, { useEffect } from "react";
+import { Box, Typography, Stack, MenuItem, TextField } from "@mui/material";
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -24,25 +24,33 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
     formState: { errors },
     clearErrors,
     handleSubmit,
-  } = useForm({
-    resolver: yupResolver<LoginTypes>(loginSchema),
+  } = useForm<LoginTypes>({
+    resolver: yupResolver(loginSchema),
     mode: "onChange",
     reValidateMode: "onChange",
   });
-  const router = useRouter();
-  const { data, isError, post, isLoading } = useAxiosPost("/user/admin-login");
-  const onSubmit = async (data: LoginTypes) => {
-    const res: any = await post(data);
 
-    if (res?.result && res?.success) {
+  const router = useRouter();
+  const { post, isError, isLoading } = useAxiosPost("/user/admin-login");
+
+  const onSubmit = async (formData: LoginTypes) => {
+    const res: any = await post(formData);
+  
+    if (res?.body && res?.success) {
       if (typeof window !== "undefined") {
-        localStorage.setItem("auth", res?.result.token);
-        localStorage.setItem("user", res?.result?.fullName);
-        axiosInstance.defaults.headers.Authorization = res?.result.token;
+        const { token, fullName, role, isAdmin } = res.body;
+  
+        localStorage.setItem("auth", token);
+        localStorage.setItem("user", fullName);
+        localStorage.setItem("role", role);
+        localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
+  
+        axiosInstance.defaults.headers.Authorization = token;
         router.push("/");
       }
     }
   };
+  
 
   useEffect(() => {
     const { profile } = currentProfile();
@@ -54,6 +62,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
   const onError = (error: any) => {
     console.log(error);
   };
+
   return (
     <>
       {title ? (
@@ -62,7 +71,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
         </Typography>
       ) : null}
       <div className="w-full text-2xl font-bold text-center text-primary">
-        SS Online
+        BossM online
       </div>
       {subtext}
       <form autoComplete="off" onSubmit={handleSubmit(onSubmit, onError)}>
@@ -72,7 +81,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               name="user"
               register={register}
               label="Username"
-              required={true}
+              required
               placeholder=""
               type="string"
               classLabel="mb-2 text-slate-500"
@@ -81,12 +90,13 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               onChange={() => clearErrors("user")}
             />
           </Box>
+
           <Box mt="25px">
             <Textinput
               name="password"
               register={register}
               label="Password"
-              required={true}
+              required
               placeholder=""
               type="password"
               classLabel="mb-2 text-slate-500"
@@ -95,7 +105,24 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               onChange={() => clearErrors("password")}
             />
           </Box>
+
+          <Box mt="25px">
+            <TextField
+              select
+              fullWidth
+              label="Select Role"
+              defaultValue=""
+              {...register("role")}
+              onChange={() => clearErrors("role")}
+              error={!!errors.role}
+              helperText={errors.role?.message}
+            >
+              <MenuItem value="ADMIN">Admin</MenuItem>
+              <MenuItem value="AGENT">Agent</MenuItem>
+            </TextField>
+          </Box>
         </Stack>
+
         <Box mt="25px">
           <LoadingButton
             loading={isLoading}

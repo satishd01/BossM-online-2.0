@@ -17,7 +17,7 @@ export const getAuthorizationHeader = () => `${getToken()}`;
 //   },
 // });
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL || "https://ssonline.shellcode.cloud"}/api/v1`,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || "https://bossm.shellcode.cloud"}/api/v1`,
   headers: {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),

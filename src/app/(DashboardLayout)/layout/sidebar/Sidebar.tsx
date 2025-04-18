@@ -58,7 +58,7 @@ const Sidebar = ({
             {/* Logo */}
             {/* ------------------------------------------- */}
             <div className="text-primary text-2xl font-semibold text-center my-5 font-serif">
-              SS Online
+              BossM Online
             </div>
             <Box>
               {/* ------------------------------------------- */}
@@ -89,7 +89,7 @@ const Sidebar = ({
       {/* Logo */}
       {/* ------------------------------------------- */}
       <div className="text-primary text-2xl font-semibold text-center my-5 font-serif">
-        SS Online
+        BossM Online
       </div>
       {/* ------------------------------------------- */}
       {/* Sidebar For Mobile */}
