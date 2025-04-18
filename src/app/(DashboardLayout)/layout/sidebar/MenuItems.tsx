@@ -105,7 +105,7 @@ export const allMenuItems = [
   {
     id: uniqueId(),
     title: "Agent",
-    icon: NotificationsNoneOutlined,
+    icon: IconUserPlus,
     href: "/agent",
     allowedRoles: ["ADMIN"],
   },
