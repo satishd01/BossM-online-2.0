@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Stack, MenuItem, TextField } from "@mui/material";
-
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginTypes } from "./types";
@@ -19,6 +18,7 @@ interface loginType {
 }
 
 const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
+  const [selectedRole, setSelectedRole] = useState<string>(""); // Store the selected role locally
   const {
     register,
     formState: { errors },
@@ -34,23 +34,26 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
   const { post, isError, isLoading } = useAxiosPost("/user/admin-login");
 
   const onSubmit = async (formData: LoginTypes) => {
-    const res: any = await post(formData);
-  
+    // Exclude role from the form data before submission, since it's not needed by the API
+    const { user, password } = formData;
+
+    // Send only user and password to the API
+    const res: any = await post({ user, password });
+
     if (res?.body && res?.success) {
       if (typeof window !== "undefined") {
         const { token, fullName, role, isAdmin } = res.body;
-  
+
         localStorage.setItem("auth", token);
         localStorage.setItem("user", fullName);
         localStorage.setItem("role", role);
         localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-  
+
         axiosInstance.defaults.headers.Authorization = token;
         router.push("/");
       }
     }
   };
-  
 
   useEffect(() => {
     const { profile } = currentProfile();
@@ -106,16 +109,15 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             />
           </Box>
 
+          {/* Role selection for UI purposes only */}
           <Box mt="25px">
             <TextField
               select
               fullWidth
               label="Select Role"
-              defaultValue=""
-              {...register("role")}
-              onChange={() => clearErrors("role")}
-              error={!!errors.role}
-              helperText={errors.role?.message}
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)} // Update local state on change
+              error={false} // No need for error validation
             >
               <MenuItem value="ADMIN">Admin</MenuItem>
               <MenuItem value="AGENT">Agent</MenuItem>
