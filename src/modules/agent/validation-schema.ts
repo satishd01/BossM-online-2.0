@@ -2,8 +2,9 @@ import * as Yup from "yup";
 
 export const addEditAgentSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+  .email("Invalid email format")
+  .notRequired()
+  .nullable(),
     phoneNumber: Yup.string()
     .matches(/^[1-9]\d{9,14}$/, "Phone number must be 10 to 15 digits, starting with a non-zero digit")
     .required("Phone number is required"),  

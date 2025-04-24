@@ -27,7 +27,14 @@ const AddEditUserForm = ({
 
   return (
     <div>
-      <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+      <form autoComplete="off"  onSubmit={handleSubmit((data) => {
+    const { email, ...rest } = data;
+    const payload = {
+      ...rest,
+      ...(email ? { email } : {}), // Only include email if it has a value
+    };
+    onSubmit(payload);
+  })}>
         <div className="w-full pb-5 flex flex-col justify-center gap-2.5 border-b border-slate-300 ">
           <Textinput
             name="fullName"

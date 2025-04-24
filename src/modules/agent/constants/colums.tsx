@@ -1,11 +1,9 @@
-// app/(DashboardLayout)/agent/constants/columns.tsx
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@mui/material";
-import Image from "next/image";
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography } from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 import { editAgentTypes } from "../types";
-import { DeleteOutlined, ModeEditOutline } from "@mui/icons-material";
-import { bufferToBase64 } from "@/utils";
+import React from "react";
 
 export const getAgentsColumns = ({
   setDeleteAgentId,
@@ -47,49 +45,59 @@ export const getAgentsColumns = ({
     ),
   },
   {
-    header: "Status",
-    accessorKey: "status",
-    maxSize: 50,
-    cell: ({ row }) => (
-      <span
-        className={`text-lg font-bold capitalize ${
-          row.getValue("status") === "ACTIVE"
-            ? "text-green-500"
-            : "text-red-500"
-        }`}
-      >
-        {row.getValue("status")}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "id",
-    header: "Action",
+    header: "Users",
+    id: "view-users",
     cell: ({ row }) => {
-      const { id, fullName, email, phoneNumber, status } = row?.original;
+      const users = row.original.users;
+      const [open, setOpen] = React.useState(false);
+
       return (
-        <div className="flex">
+        <>
           <Button
-            className="flex justify-center !px-2 !m-0 !min-w-0"
-            onClick={() => setDeleteAgentId(row?.getValue("id"))}
+            size="small"
+            variant="outlined"
+            onClick={() => setOpen(true)}
           >
-            <DeleteOutlined className="text-red-400" />
+            View Users
           </Button>
-          <Button
-            className="flex justify-center !px-2 !m-0 !min-w-0"
-            onClick={() =>
-              setAgentToEdit({
-                id,
-                fullName,
-                email,
-                phoneNumber,
-                status,
-              })
-            }
+
+          <Dialog
+            open={open}
+            onClose={() => setOpen(false)}
+            fullWidth
+            maxWidth="sm"
           >
-            <ModeEditOutline className="text-primary w-10" />
-          </Button>
-        </div>
+            <DialogTitle className="flex justify-between items-center">
+              Users of {row.original.fullName}
+              <IconButton onClick={() => setOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent dividers>
+              {users && users.length > 0 ? (
+                <ul className="space-y-2">
+                  {users.map((user) => (
+                    <li key={user.id} className="text-sm">
+                      <Typography variant="body1" className="font-semibold">
+                        {user.fullName}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {user.email || "No Email"} — {user.phoneNumber} — Wallet: ₹{user.wallet}
+                      </Typography>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Typography>No users available.</Typography>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpen(false)} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
       );
     },
   },

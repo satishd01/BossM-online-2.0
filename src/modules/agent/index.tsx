@@ -40,14 +40,17 @@ const AgentComponent = () => {
 
   const onSubmit = async (data: addEditAgentTypes) => {
     try {
-      const payload = {
-        email: data.email,
+      const payload: Record<string, any> = {
         phoneNumber: data.phoneNumber,
         password: data.password,
         fullName: data.fullName,
-        deviceToken: "fcm_device_token_123", // Passed internally
-        role: "AGENT" // Passed internally
+        deviceToken: "fcm_device_token_123",
+        role: "AGENT",
       };
+      
+      if (data.email) {
+        payload.email = data.email;
+      }
   
       const response = await axiosInstance.post("/user/admin-signup", payload);
   
@@ -77,7 +80,7 @@ const AgentComponent = () => {
     <PageContainer title="Agents" description="this is Agents page">
       <Grid container spacing={3}>
         <Grid item sm={12} className="max-w-[88vw]">
-          <DashboardCard title="Agents Management">
+          <DashboardCard title="Agents">
             <>
               <div className="flex w-full justify-end mb-4">
                 <LoadingButton

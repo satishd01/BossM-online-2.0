@@ -27,6 +27,13 @@ export const allMenuItems = [
   },
   {
     id: uniqueId(),
+    title: "Agents",
+    icon: IconUserPlus,
+    href: "/agent",
+    allowedRoles: ["ADMIN"],
+  },
+  {
+    id: uniqueId(),
     title: "Declare Results",
     icon: RadarTwoTone,
     href: "/declare-result",
@@ -100,13 +107,6 @@ export const allMenuItems = [
     title: "Notifications",
     icon: NotificationsNoneOutlined,
     href: "/notifications",
-    allowedRoles: ["ADMIN"],
-  },
-  {
-    id: uniqueId(),
-    title: "Agent",
-    icon: IconUserPlus,
-    href: "/agent",
     allowedRoles: ["ADMIN"],
   },
 ];
