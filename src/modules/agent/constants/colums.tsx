@@ -1,18 +1,69 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { editAgentTypes } from "../types";
-import React from "react";
+import React, { useState } from "react";
+
+const ViewUsersModal = ({ agent }: { agent: editAgentTypes }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button size="small" variant="outlined" onClick={() => setOpen(true)}>
+        View Users
+      </Button>
+
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle className="flex justify-between items-center">
+          Users of {agent.fullName}
+          <IconButton onClick={() => setOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {agent.users && agent.users.length > 0 ? (
+            <ul className="space-y-2">
+              {agent.users.map((user) => (
+                <li key={user.id} className="text-sm">
+                  <Typography variant="body1" className="font-semibold">
+                    {user.fullName}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {user.email || "No Email"} — {user.phoneNumber} — Wallet: ₹
+                    {user.wallet}
+                  </Typography>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Typography>No users available.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
 
 export const getAgentsColumns = ({
   setDeleteAgentId,
   setAgentToEdit,
 }: {
   setDeleteAgentId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  setAgentToEdit: React.Dispatch<
-    React.SetStateAction<editAgentTypes | undefined>
-  >;
+  setAgentToEdit: React.Dispatch<React.SetStateAction<editAgentTypes | undefined>>;
 }): ColumnDef<editAgentTypes>[] => [
   {
     header: "Full Name",
@@ -47,58 +98,6 @@ export const getAgentsColumns = ({
   {
     header: "Users",
     id: "view-users",
-    cell: ({ row }) => {
-      const users = row.original.users;
-      const [open, setOpen] = React.useState(false);
-
-      return (
-        <>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setOpen(true)}
-          >
-            View Users
-          </Button>
-
-          <Dialog
-            open={open}
-            onClose={() => setOpen(false)}
-            fullWidth
-            maxWidth="sm"
-          >
-            <DialogTitle className="flex justify-between items-center">
-              Users of {row.original.fullName}
-              <IconButton onClick={() => setOpen(false)}>
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent dividers>
-              {users && users.length > 0 ? (
-                <ul className="space-y-2">
-                  {users.map((user) => (
-                    <li key={user.id} className="text-sm">
-                      <Typography variant="body1" className="font-semibold">
-                        {user.fullName}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {user.email || "No Email"} — {user.phoneNumber} — Wallet: ₹{user.wallet}
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Typography>No users available.</Typography>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpen(false)} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </>
-      );
-    },
+    cell: ({ row }) => <ViewUsersModal agent={row.original} />,
   },
 ];
