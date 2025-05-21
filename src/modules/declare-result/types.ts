@@ -8,6 +8,14 @@ export type editNoticeTypes = {
   pannaDigit: string;
   bidDigit: string;
   date: Date;
-  marketId:number;
-  session:string;
+  marketId: number;
+  session: string;
 };
+
+export interface ExternalApiResult {
+  name: string;
+  result: string;
+  date: string;
+  open_time: string;
+  close_time: string;
+}
