@@ -13,6 +13,7 @@ import {
   IconBrandOffice,
   IconUserPlus,
   IconDeviceGamepad,
+  IconChartBar
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -59,6 +60,13 @@ export const allMenuItems = [
     icon: IconDeviceGamepad,
     href: "/games",
     allowedRoles: ["ADMIN"],
+  },
+    {
+    id: uniqueId(),
+    title: "OC Group Combined", // New menu item
+    icon: IconChartBar, // Using a chart icon for reports
+    href: "/oc",
+    allowedRoles: ["ADMIN"], // Adjust roles as needed
   },
   {
     id: uniqueId(),

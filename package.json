@@ -41,6 +41,8 @@
     "date-fns": "^3.6.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "lodash": "4.17.21",
     "lucide-react": "^0.445.0",
     "next": "13.4.12",
@@ -58,6 +60,8 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@types/html2canvas": "^1.0.0",
+    "@types/jspdf": "^2.0.0",
     "@types/lodash": "4.14.196",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
