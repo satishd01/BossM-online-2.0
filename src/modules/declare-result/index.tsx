@@ -14,12 +14,12 @@ import useAxiosDelete from "../../../hooks/axios/useAxiosDelete";
 import CommonAlert from "@/components/common/alert";
 
 interface ExternalApiResult {
-  name: string;
-  result: string;
-  date: string;
-  open_time: string;
-  close_time: string;
+  id: number;
+  market: string;
+  number: string;
+  timing: string;
 }
+
 
 const DeclareResultComponent = () => {
   const [noticeData, setNoticeData] = useState<any>([]);
@@ -50,7 +50,7 @@ const DeclareResultComponent = () => {
   const fetchExternalResults = async () => {
     try {
       setExternalLoading(true);
-      const response = await fetch('https://sboss.fun/test.php', {
+      const response = await fetch('https://sboss.fun/admin/market_data.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,30 +212,31 @@ const DeclareResultComponent = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {externalResults.map((result, index) => (
-                      <tr 
-                        key={index} 
-                        className="h-14 border-b border-gray-200 dark:border-gray-700"
-                      >
-                        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                          {result.name}
-                        </td>
-                        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                          {result.result}
-                        </td>
-                        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                          {result.date}
-                        </td>
-                        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                          {result.open_time}
-                        </td>
-                        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                          {result.close_time}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
+<tbody>
+  {externalResults.map((result, index) => {
+    const [openTimeRaw, closeTimeRaw] = result.timing.split(/[-–]+/).map(t => t.trim());
+    return (
+      <tr key={index} className="h-14 border-b border-gray-200 dark:border-gray-700">
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {result.market}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {result.number}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {new Date().toLocaleDateString()}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {openTimeRaw}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {closeTimeRaw}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
                 </table>
               </div>
             </DashboardCard>
