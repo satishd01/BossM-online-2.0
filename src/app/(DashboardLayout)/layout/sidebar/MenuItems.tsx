@@ -61,6 +61,13 @@ export const allMenuItems = [
     href: "/games",
     allowedRoles: ["ADMIN"],
   },
+      {
+    id: uniqueId(),
+    title: "Commition report", // New menu item
+    icon: IconChartBar, // Using a chart icon for reports
+    href: "/agentreport",
+    allowedRoles: ["ADMIN"], // Adjust roles as needed
+  },
     {
     id: uniqueId(),
     title: "OC Group Combined", // New menu item
