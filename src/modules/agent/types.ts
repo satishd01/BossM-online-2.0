@@ -1,7 +1,6 @@
 import * as Yup from "yup";
 import { addEditAgentSchema } from "./validation-schema";
 
-// Nested user type inside an agent
 export type userType = {
   id: number;
   phoneNumber: string;
@@ -18,6 +17,8 @@ export type editAgentTypes = {
   email: string;
   phoneNumber: string;
   fullName: string;
+  agentCommission: number;
+  partnership: number;
   status?: string;
   users?: userType[];
 };

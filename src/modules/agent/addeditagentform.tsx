@@ -19,26 +19,26 @@ const AddEditAgentForm = ({
   agentToEdit?: editAgentTypes;
   setOpenFrom: Dispatch<SetStateAction<boolean>>;
   onSubmit: (data: addEditAgentTypes) => Promise<void>;
-  setAgentToEdit: React.Dispatch<
-    React.SetStateAction<editAgentTypes | undefined>
-  >;
+  setAgentToEdit: React.Dispatch<React.SetStateAction<editAgentTypes | undefined>>;
 }) => {
   const {
     register,
     formState: { errors },
     reset,
     handleSubmit,
-  } = useForm({
+  } = useForm<addEditAgentTypes>({
     resolver: yupResolver(addEditAgentSchema),
   });
 
   useEffect(() => {
     if (agentToEdit) {
       reset({
-        email: agentToEdit.email,
+        email: agentToEdit.email || "",
         phoneNumber: agentToEdit.phoneNumber,
         fullName: agentToEdit.fullName,
-        password: "", // Don't pre-fill password for edit
+        password: "", // Keep empty for edit
+        agentCommission: agentToEdit.agentCommission,
+        partnership: agentToEdit.partnership,
       });
     } else {
       reset({
@@ -46,6 +46,8 @@ const AddEditAgentForm = ({
         phoneNumber: "",
         fullName: "",
         password: "",
+        agentCommission: 0,
+        partnership: 0,
       });
     }
   }, [agentToEdit]);
@@ -61,7 +63,7 @@ const AddEditAgentForm = ({
       isOpen={openForm}
       modalTitle={agentToEdit ? "Edit Agent" : "Add New Agent"}
       closeForm={closeForm}
-      className="w-[600px]"
+      className="w-[600px] max-h-[500px] overflow-y-auto" // added max height and scroll
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
@@ -100,6 +102,24 @@ const AddEditAgentForm = ({
               error={errors.password}
             />
           )}
+
+          <Textinput
+            name="agentCommission"
+            register={register}
+            label="Commission (%)"
+            placeholder="Enter agent commission"
+            type="number"
+            error={errors.agentCommission}
+          />
+
+          <Textinput
+            name="partnership"
+            register={register}
+            label="Partnership (%)"
+            placeholder="Enter partnership"
+            type="number"
+            error={errors.partnership}
+          />
         </div>
 
         <div className="mt-6">

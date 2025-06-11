@@ -1,6 +1,6 @@
 "use client";
 import { Grid } from "@mui/material";
-import DashboardCard from "@/app/(DashboardLayout)//components/shared/DashboardCard";
+import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import { CommonTable } from "@/components/commonTable";
 import { getAgentsColumns } from "./constants/colums";
 import React, { useEffect, useState } from "react";
@@ -46,14 +46,16 @@ const AgentComponent = () => {
         fullName: data.fullName,
         deviceToken: "fcm_device_token_123",
         role: "AGENT",
+        agentCommission: data.agentCommission,
+        partnership: data.partnership,
       };
-      
+
       if (data.email) {
         payload.email = data.email;
       }
-  
+
       const response = await axiosInstance.post("/user/admin-signup", payload);
-  
+
       if (response?.data?.success) {
         await fetchAgents();
         setOpenFrom(false);
