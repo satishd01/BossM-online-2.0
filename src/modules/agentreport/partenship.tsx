@@ -3,6 +3,7 @@ import { Grid, Typography, Button, MenuItem, Select, FormControl, InputLabel, Ci
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import React, { useEffect, useState, useRef } from "react";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
+import useAxiosGet from "../../../hooks/axios/useAxiosGet";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -12,30 +13,34 @@ interface Agent {
   phoneNumber: string;
 }
 
-interface MarketCommission {
+interface MarketPartnership {
   marketId: number;
   marketName: string;
   totalBidAmount: string;
-  commission: string;
+  totalWinAmount: string;
+  bidPartnership: string;
+  winPartnership: string;
+  profitLoss: string;
 }
 
-interface CommissionReportData {
+interface PartnershipReportData {
   admin: {
     id: number;
     fullName: string;
-    commissionRate: number;
+    partnershipRate: number;
   };
-  markets: MarketCommission[];
+  markets: MarketPartnership[];
   totalBidAmount: string;
-  totalCommission: string;
+  totalWinAmount: string;
+  totalBidPartnership: string;
+  totalWinPartnership: string;
+  totalProfitLoss: string;
 }
 
-const API_BASE_URL = "https://bossm.shellcode.cloud/api/v1";
-
-const CommissionReport = () => {
+const PartnershipReport = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<number | null>(null);
-  const [reportData, setReportData] = useState<CommissionReportData | null>(null);
+  const [reportData, setReportData] = useState<PartnershipReportData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [agentsLoading, setAgentsLoading] = useState<boolean>(true);
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -43,31 +48,25 @@ const CommissionReport = () => {
   const pdfRef = useRef<HTMLDivElement>(null);
 
   // Fetch agents data
-  const fetchAgents = async () => {
-    setAgentsLoading(true);
-    try {
-      const token = localStorage.getItem("auth") || "";
-      const response = await fetch(`${API_BASE_URL}/user/agent-profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-      const data = await response.json();
-      const formattedAgents = data.body.map((agent: any) => ({
-        id: agent.id,
-        fullName: agent.fullName,
-        phoneNumber: agent.phoneNumber
-      }));
-      setAgents(formattedAgents);
-      if (formattedAgents.length > 0) {
-        setSelectedAgentId(formattedAgents[0].id);
-      }
-    } catch (error) {
-      console.error("Error fetching agents:", error);
-    } finally {
-      setAgentsLoading(false);
+  const onAgentsSuccess = (data: any) => {
+    const formattedAgents = data.body.map((agent: any) => ({
+      id: agent.id,
+      fullName: agent.fullName,
+      phoneNumber: agent.phoneNumber
+    }));
+    setAgents(formattedAgents);
+    setAgentsLoading(false);
+    if (formattedAgents.length > 0) {
+      setSelectedAgentId(formattedAgents[0].id);
     }
+  };
+
+  const { fetchData: fetchAgents } = useAxiosGet(`/user/agent-profile`, onAgentsSuccess);
+
+  // Fetch partnership report data
+  const onReportSuccess = (data: any) => {
+    setReportData(data.body);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -76,25 +75,35 @@ const CommissionReport = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedAgentId) {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("auth") || "";
-        const url = `${API_BASE_URL}/user/commission-report?adminId=${selectedAgentId}&startDate=${startDate}&endDate=${endDate}`;
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-        const data = await response.json();
-        setReportData(data.body);
-      } catch (error) {
-        console.error("Error fetching commission report:", error);
-      } finally {
-        setLoading(false);
-      }
+if (selectedAgentId) {
+  setLoading(true);
+
+  const token = localStorage.getItem("auth"); 
+  const url = `https://bossm.shellcode.cloud/api/v1/user/partnership-report?adminId=${selectedAgentId}&startDate=${startDate}&endDate=${endDate}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch report');
     }
+
+    const data = await response.json();
+    onReportSuccess(data);
+  } catch (error) {
+    console.error("Error fetching report:", error);
+    // Optionally, handle error in the UI
+  } finally {
+    setLoading(false);
+  }
+}
+
   };
 
   const exportToPDF = async () => {
@@ -113,17 +122,17 @@ const CommissionReport = () => {
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    pdf.save(`commission_report_${reportData.admin.fullName}_${startDate}_to_${endDate}.pdf`);
+    pdf.save(`partnership_report_${reportData.admin.fullName}_${startDate}_to_${endDate}.pdf`);
   };
 
   return (
     <PageContainer
-      title="Agent Commission Report"
-      description="Agent commission details"
+      title="Agent Partnership Report"
+      description="Agent partnership details"
     >
       <Grid container spacing={3}>
         <Grid item sm={12}>
-          <DashboardCard title="Agent Commission Report">
+          <DashboardCard title="Agent Partnership Report">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Filters Section with PDF Button */}
               <div className="flex justify-between items-center mb-4">
@@ -135,6 +144,7 @@ const CommissionReport = () => {
       value={selectedAgentId || ''}
       onChange={(e) => setSelectedAgentId(Number(e.target.value))}
       disabled={agentsLoading}
+      displayEmpty
     >
       {agentsLoading ? (
         <MenuItem disabled>
@@ -204,7 +214,6 @@ const CommissionReport = () => {
 
               {/* Results Section */}
               <div ref={pdfRef}>
-
                 <div className="border-t border-gray-200 my-2"></div>
 
                 {loading ? (
@@ -215,8 +224,16 @@ const CommissionReport = () => {
                   <div className="space-y-6">
                     <div className="flex justify-between items-center">
                       <Typography variant="subtitle1">
-                        Show | {reportData.markets.length} entries
+                        Show {reportData.markets.length} entries
                       </Typography>
+                      {/* <div className="flex items-center">
+                        <Typography variant="body2" className="mr-2">Search:</Typography>
+                        <input 
+                          type="text" 
+                          className="border rounded p-1 text-sm"
+                          placeholder="Search..."
+                        />
+                      </div> */}
                     </div>
 
                     <div className="overflow-x-auto">
@@ -225,8 +242,9 @@ const CommissionReport = () => {
                           <tr className="bg-gray-50">
                             <th className="px-4 py-2 text-left border">Sr No</th>
                             <th className="px-4 py-2 text-left border">Market</th>
-                            <th className="px-4 py-2 text-left border">Bid Amount</th>
-                            <th className="px-4 py-2 text-left border">Commission Amount</th>
+                            <th className="px-4 py-2 text-left border">Bid Partnership</th>
+                            <th className="px-4 py-2 text-left border">Win Partnership</th>
+                            <th className="px-4 py-2 text-left border">Profit/Loss</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -235,18 +253,27 @@ const CommissionReport = () => {
                               <tr key={market.marketId} className="border">
                                 <td className="px-4 py-2 border">{index + 1}</td>
                                 <td className="px-4 py-2 border">{market.marketName}</td>
-                                <td className="px-4 py-2 border">{market.totalBidAmount}</td>
-                                <td className="px-4 py-2 border">{market.commission}</td>
+                                <td className="px-4 py-2 border">{market.bidPartnership}</td>
+                                <td className="px-4 py-2 border">{market.winPartnership}</td>
+                                <td className="px-4 py-2 border">{market.profitLoss}</td>
                               </tr>
                             ))
                           ) : (
                             <tr>
-                              <td colSpan={4} className="px-4 py-2 text-center border">
-                                No commission data available for selected period
+                              <td colSpan={5} className="px-4 py-2 text-center border">
+                                No partnership data available for selected period
                               </td>
                             </tr>
                           )}
                         </tbody>
+                        <tfoot>
+                          <tr className="bg-gray-50 font-medium">
+                            <td className="px-4 py-2 border" colSpan={2}>Total</td>
+                            <td className="px-4 py-2 border">{reportData.totalBidPartnership}</td>
+                            <td className="px-4 py-2 border">{reportData.totalWinPartnership}</td>
+                            <td className="px-4 py-2 border">{reportData.totalProfitLoss}</td>
+                          </tr>
+                        </tfoot>
                       </table>
                     </div>
 
@@ -254,22 +281,20 @@ const CommissionReport = () => {
                       <Typography variant="body2">
                         Showing {reportData.markets.length ? 1 : 0} to {reportData.markets.length} of {reportData.markets.length} entries
                       </Typography>
-                    </div>
-
-                    <div className="border-t border-gray-200 my-2"></div>
-
-                    <div className="flex justify-end space-x-4">
-                      <Typography variant="h6">Total</Typography>
-                      <div className="text-right">
-                        <Typography>{reportData.totalBidAmount}</Typography>
-                        <Typography>{reportData.totalCommission}</Typography>
+                      <div className="flex space-x-2">
+                        <Button variant="outlined" size="small" disabled>
+                          Previous
+                        </Button>
+                        <Button variant="outlined" size="small" disabled>
+                          Next
+                        </Button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="flex justify-center items-center h-32">
                     <Typography>
-                      {selectedAgentId ? 'Click "Submit" to fetch commission data...' : 'Please select an agent'}
+                      {selectedAgentId ? 'click submit to fetch partnership data...' : 'Please select an agent'}
                     </Typography>
                   </div>
                 )}
@@ -282,4 +307,4 @@ const CommissionReport = () => {
   );
 };
 
-export default CommissionReport;
+export default PartnershipReport;

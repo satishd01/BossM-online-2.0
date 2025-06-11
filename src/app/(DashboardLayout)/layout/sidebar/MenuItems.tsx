@@ -13,7 +13,9 @@ import {
   IconBrandOffice,
   IconUserPlus,
   IconDeviceGamepad,
-  IconChartBar
+  IconChartBar,
+  IconReportMoney,
+  IconUsersGroup
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -33,6 +35,21 @@ export const allMenuItems = [
     href: "/agent",
     allowedRoles: ["ADMIN"],
   },
+{
+  id: uniqueId(),
+  title: "Commission Report",
+  icon: IconReportMoney, // More suitable for financial/commission reports
+  href: "/agentreport",
+  allowedRoles: ["ADMIN"],
+},
+{
+  id: uniqueId(),
+  title: "Partnership Report",
+  icon: IconUsersGroup, // Represents user groups or partners
+  href: "/partnerreport",
+  allowedRoles: ["ADMIN"],
+},
+
   {
     id: uniqueId(),
     title: "Declare Results",
@@ -60,13 +77,6 @@ export const allMenuItems = [
     icon: IconDeviceGamepad,
     href: "/games",
     allowedRoles: ["ADMIN"],
-  },
-      {
-    id: uniqueId(),
-    title: "Commition report", // New menu item
-    icon: IconChartBar, // Using a chart icon for reports
-    href: "/agentreport",
-    allowedRoles: ["ADMIN"], // Adjust roles as needed
   },
     {
     id: uniqueId(),
