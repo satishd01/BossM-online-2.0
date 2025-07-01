@@ -8,6 +8,7 @@ import {
   InsertPhotoOutlined,
   RadarTwoTone,
 } from "@mui/icons-material";
+import { IconSum } from "@tabler/icons-react";
 
 import {
   IconBrandOffice,
@@ -76,6 +77,13 @@ export const allMenuItems = [
     title: "Games",
     icon: IconDeviceGamepad,
     href: "/games",
+    allowedRoles: ["ADMIN"],
+  },
+  {
+    id: uniqueId(),
+    title: "Game Totals",
+    icon: IconSum,
+    href: "/gametotal",
     allowedRoles: ["ADMIN"],
   },
     {
