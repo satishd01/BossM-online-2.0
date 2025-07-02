@@ -101,6 +101,13 @@ export const allMenuItems = [
     allowedRoles: ["ADMIN", "AGENT"],
   },
   {
+  id: uniqueId(),
+  title: "Agent Bid History",
+  icon: TableRowsOutlined,
+  href: "/agent-bid-history",
+  allowedRoles: ["ADMIN"],
+},
+  {
     id: uniqueId(),
     title: "Withdraw request",
     icon: TableRowsOutlined,
