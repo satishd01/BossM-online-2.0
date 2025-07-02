@@ -12,8 +12,6 @@ import { addEditNoticeTypes, editNoticeTypes } from "./types";
 import useAxiosPost from "../../../hooks/axios/useAxiosPost";
 import useAxiosDelete from "../../../hooks/axios/useAxiosDelete";
 import CommonAlert from "@/components/common/alert";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 interface ExternalApiResult {
   id: number;
@@ -21,6 +19,7 @@ interface ExternalApiResult {
   number: string;
   timing: string;
 }
+
 
 const DeclareResultComponent = () => {
   const [noticeData, setNoticeData] = useState<any>([]);
@@ -32,38 +31,44 @@ const DeclareResultComponent = () => {
   const [deleteNoticeId, setDeleteNoticeId] = useState<number>();
   const [noticeToEdit, setNoticeToEdit] = useState<editNoticeTypes>();
   const [deleteResultId, setDeleteResultId] = useState<number>();
-  const [showInternalResults, setShowInternalResults] = useState(true);
+  const [showInternalResults, setShowInternalResults] = useState(false); // Toggle state
 
   const onSuccess = (data: any) => {
-    setNoticeData(data.result||[]);
+    setNoticeData(data.result);
     setLoading(false);
   };
 
-  const { Delete } = useAxiosDelete(`bid/delete-result?resultId=${deleteResultId}`);
-  const { fetchData } = useAxiosGet(`/bid/result-history-admin?page=${page}&limit=10`, onSuccess);
+  const { Delete } = useAxiosDelete(
+    `bid/delete-result?resultId=${deleteResultId}`
+  );
+
+  const { fetchData } = useAxiosGet(
+    `/bid/result-history-admin?page=${page}&limit=10`,
+    onSuccess
+  );
 
   const fetchExternalResults = async () => {
     try {
       setExternalLoading(true);
-      const response = await fetch("https://sboss.fun/admin/market_data.php", {
-        method: "POST",
+      const response = await fetch('https://sboss.fun/admin/market_data.php', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           server_ip: "194.163.35.237",
-          data: [],
-        }),
+          data: []
+        })
       });
       const data = await response.json();
       if (data && Array.isArray(data.data)) {
         setExternalResults(data.data);
       } else {
-        console.error("Invalid data structure:", data);
+        console.error('Invalid data structure:', data);
         setExternalResults([]);
       }
     } catch (error) {
-      console.error("Error fetching external results:", error);
+      console.error('Error fetching external results:', error);
     } finally {
       setExternalLoading(false);
     }
@@ -98,54 +103,10 @@ const DeclareResultComponent = () => {
     }
   };
 
-  const downloadPDF = () => {
-    const doc = new jsPDF();
-
-    if (showInternalResults) {
-const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
-  item.marketName || "-",
-  item.result || "-",
-  item.date || "-",
-  item.openTime || "-",
-  item.closeTime || "-",
-]) : [];
-
-
-      autoTable(doc, {
-        head: [["Market", "Result", "Date", "Open Time", "Close Time"]],
-        body: internalData,
-        startY: 20,
-      });
-
-      doc.save("internal-results.pdf");
-    } else {
-      const externalData = externalResults.map((result) => {
-        const [openTimeRaw, closeTimeRaw] = result.timing
-          .split(/[-–]+/)
-          .map((t) => t.trim());
-        return [
-          result.market,
-          result.number,
-          new Date().toLocaleDateString(),
-          openTimeRaw,
-          closeTimeRaw,
-        ];
-      });
-
-      autoTable(doc, {
-        head: [["Market", "Result", "Date", "Open Time", "Close Time"]],
-        body: externalData,
-        startY: 20,
-      });
-
-      doc.save("external-results.pdf");
-    }
-  };
-
   if (loading || externalLoading) {
     return (
       <div className="w-full h-[100vh] flex items-center justify-center">
-        {/* Loading spinner or placeholder here if needed */}
+        {/* <LoadingOverlay text="Loading..." isError={false} isSuccess={false} /> */}
       </div>
     );
   }
@@ -153,8 +114,9 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
   return (
     <PageContainer title="Results" description="Results">
       <Grid container spacing={3}>
+        {/* Toggle switch */}
         <Grid item xs={12}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box display="flex" justifyContent="flex-end" alignItems="center">
             <FormControlLabel
               control={
                 <Switch
@@ -166,18 +128,10 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
               label={showInternalResults ? "Your Results" : "External Results"}
               labelPlacement="start"
             />
-            <LoadingButton
-              color="secondary"
-              variant="outlined"
-              className="ml-4 py-2"
-              size="medium"
-              onClick={downloadPDF}
-            >
-              Download PDF
-            </LoadingButton>
           </Box>
         </Grid>
 
+        {/* Results table (shows based on toggle state) */}
         {showInternalResults ? (
           <Grid item sm={12} className="max-w-[88vw]">
             <DashboardCard title="Your Results">
@@ -187,8 +141,10 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
                     color="primary"
                     variant="contained"
                     className="py-2"
+                    aria-label="logout"
                     size="medium"
                     sx={{ width: "160px" }}
+                    type="button"
                     onClick={() => setOpenForm(true)}
                   >
                     Declare Result
@@ -198,8 +154,8 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
                 <CommonAlert
                   showModal={!!deleteResultId}
                   AlertDiaogTitle="Confirm Delete Result"
-                  title="Are you sure, you want to delete this result?"
-                  description="Once result is deleted, the associated bids will get their bid amount refunded."
+                  title="Are you sure,you want to delete this result"
+                  description="Once result is deleted the associated bids will get their bid amount refunded"
                   ButtonText="Delete"
                   onContinue={handleResultDelete}
                   onCancel={() => {
@@ -222,7 +178,7 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
                   columns={getSiteManagementColumns({
                     setDeleteNoticeId,
                     setNoticeToEdit,
-                    setDeleteResultId,
+                    setDeleteResultId
                   })}
                   data={noticeData}
                   isLoading={loading}
@@ -256,35 +212,31 @@ const internalData = Array.isArray(noticeData) ? noticeData.map((item: any) => [
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {externalResults.map((result, index) => {
-                      const [openTimeRaw, closeTimeRaw] = result.timing
-                        .split(/[-–]+/)
-                        .map((t) => t.trim());
-                      return (
-                        <tr
-                          key={index}
-                          className="h-14 border-b border-gray-200 dark:border-gray-700"
-                        >
-                          <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                            {result.market}
-                          </td>
-                          <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                            {result.number}
-                          </td>
-                          <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                            {new Date().toLocaleDateString()}
-                          </td>
-                          <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                            {openTimeRaw}
-                          </td>
-                          <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
-                            {closeTimeRaw}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
+<tbody>
+  {externalResults.map((result, index) => {
+    const [openTimeRaw, closeTimeRaw] = result.timing.split(/[-–]+/).map(t => t.trim());
+    return (
+      <tr key={index} className="h-14 border-b border-gray-200 dark:border-gray-700">
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {result.market}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {result.number}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {new Date().toLocaleDateString()}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {openTimeRaw}
+        </td>
+        <td className="text-sm pl-4 pr-6 text-gray-900 dark:text-gray-300 font-medium">
+          {closeTimeRaw}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
                 </table>
               </div>
             </DashboardCard>
