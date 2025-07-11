@@ -29,6 +29,13 @@ export const allMenuItems = [
     href: "/",
     allowedRoles: ["ADMIN", "AGENT"],
   },
+    {
+    id: uniqueId(),
+    title: "Withdraw request",
+    icon: TableRowsOutlined,
+    href: "/withdraw-request",
+    allowedRoles: ["ADMIN"],
+  },
   {
     id: uniqueId(),
     title: "Agents",
@@ -107,13 +114,6 @@ export const allMenuItems = [
   href: "/agent-bid-history",
   allowedRoles: ["ADMIN"],
 },
-  {
-    id: uniqueId(),
-    title: "Withdraw request",
-    icon: TableRowsOutlined,
-    href: "/withdraw-request",
-    allowedRoles: ["ADMIN"],
-  },
   {
     id: uniqueId(),
     title: "Users",

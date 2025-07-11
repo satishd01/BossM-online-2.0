@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Grid, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { Grid, MenuItem, Select, FormControl, InputLabel, Button } from "@mui/material";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import { CommonTable } from "@/components/commonTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import useAxiosGet from "../../../hooks/axios/useAxiosGet";
 import CommonAlert from "@/components/common/alert";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { PictureAsPdf } from "@mui/icons-material";
 
 interface AgentBidHistory {
   id: number;
@@ -115,7 +118,7 @@ const AgentBidHistoryComponent = () => {
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [actionId, setActionId] = useState<any>();
-  const [pagination, setPagination] = useState<string | number>(10);
+  const [pagination, setPagination] = useState<string | number>("all");
 
   // Fetch agents data
   const onAgentsSuccess = (data: any) => {
@@ -161,6 +164,64 @@ const AgentBidHistoryComponent = () => {
     // Your implementation
   };
 
+  const exportToPDF = () => {
+    if (!tableData.data.length) return;
+
+    const doc = new jsPDF();
+    const date = format(new Date(), "dd/MM/yyyy");
+    const agentName = agents.find(a => a.id === selectedAgentId)?.fullName || "Agent";
+
+    // Title
+    doc.setFontSize(16);
+    doc.text(`${agentName} Bid History`, 14, 15);
+    doc.setFontSize(12);
+    doc.text(`Date: ${date}`, 14, 22);
+
+    // Prepare data for the table
+    const headers = [
+      "User", 
+      "User ID", 
+      "Game", 
+      "Market", 
+      "Bid Amount", 
+      "Bid Digit", 
+      "Win Amount", 
+      "Date", 
+      "Session", 
+      "Status"
+    ];
+
+    const data = tableData.data.map(item => [
+      item.userName || "N/A",
+      item.userId,
+      item.gameName || "N/A",
+      item.marketName || "N/A",
+      item.bidAmount,
+      item.bidDigit,
+      item.winAmount,
+      format(new Date(item.date), "dd/MM/yyyy h:mma"),
+      item.session,
+      item.status
+    ]);
+
+    // Add table
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 30,
+      styles: { fontSize: 8 },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      margin: { horizontal: 5 }
+    });
+
+    // Save the PDF
+    doc.save(`${agentName.replace(/\s+/g, '_')}_Bid_History_${date.replace(/\//g, '-')}.pdf`);
+  };
+
   if (loading && !selectedAgentId) {
     return <div className="w-full h-[100vh] flex items-center justify-center">Loading...</div>;
   }
@@ -171,22 +232,33 @@ const AgentBidHistoryComponent = () => {
         <Grid item sm={12} className="max-w-[88vw]">
           <DashboardCard title="Agent Bid History">
             <>
-              <FormControl fullWidth className="mb-4">
-                <InputLabel id="agent-select-label">Select Agent</InputLabel>
-                <Select
-                  labelId="agent-select-label"
-                  value={selectedAgentId || ""}
-                  onChange={(e) => setSelectedAgentId(Number(e.target.value))}
-                  label="Select Agent"
-                  sx={{ width: 400,height:45 }}
+              <div className="flex items-center mb-4">
+                <FormControl sx={{ width: 400, height: 45, mr: 2 }}>
+                  <InputLabel id="agent-select-label">Select Agent</InputLabel>
+                  <Select
+                    labelId="agent-select-label"
+                    value={selectedAgentId || ""}
+                    onChange={(e) => setSelectedAgentId(Number(e.target.value))}
+                    label="Select Agent"
+                  >
+                    {agents.map((agent) => (
+                      <MenuItem key={agent.id} value={agent.id}>
+                        {agent.fullName} ({agent.phoneNumber})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Button 
+                  variant="contained" 
+                  startIcon={<PictureAsPdf />}
+                  onClick={exportToPDF}
+                  disabled={!tableData.data.length}
+                  sx={{ height: 45 }}
                 >
-                  {agents.map((agent) => (
-                    <MenuItem key={agent.id} value={agent.id}>
-                      {agent.fullName} ({agent.phoneNumber})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  Export PDF
+                </Button>
+              </div>
 
               <CommonAlert
                 showModal={!!actionId && actionId.winStatus === true}

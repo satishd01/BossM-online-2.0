@@ -29,7 +29,7 @@ const OCGroupCombined = () => {
   };
 
   const { fetchData: fetchMarkets } = useAxiosGet(
-    `/market/get-market?page=1&limit=10`,
+    `/market/get-market`,
     onMarketsSuccess
   );
 

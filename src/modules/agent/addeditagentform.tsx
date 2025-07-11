@@ -75,7 +75,7 @@ const AddEditAgentForm = ({
             error={errors.fullName}
           />
 
-          <Textinput
+          {/* <Textinput
             name="email"
             register={register}
             label="Email"
@@ -83,7 +83,7 @@ const AddEditAgentForm = ({
             type="email"
             error={errors.email}
             disabled={!!agentToEdit}
-          />
+          /> */}
 
           <Textinput
             name="phoneNumber"

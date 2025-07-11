@@ -75,16 +75,16 @@ export const getAgentsColumns = ({
       </span>
     ),
   },
-  {
-    header: "Email",
-    accessorKey: "email",
-    maxSize: 150,
-    cell: ({ row }) => (
-      <span className="text-lg font-bold dark:text-slate-300">
-        {row.getValue("email")}
-      </span>
-    ),
-  },
+  // {
+  //   header: "Email",
+  //   accessorKey: "email",
+  //   maxSize: 150,
+  //   cell: ({ row }) => (
+  //     <span className="text-lg font-bold dark:text-slate-300">
+  //       {row.getValue("email")}
+  //     </span>
+  //   ),
+  // },
   {
     header: "Phone Number",
     accessorKey: "phoneNumber",
