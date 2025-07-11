@@ -225,6 +225,8 @@ const CommissionReport = () => {
                           <tr className="bg-gray-50">
                             <th className="px-4 py-2 text-left border">Sr No</th>
                             <th className="px-4 py-2 text-left border">Market</th>
+                            <th className="px-4 py-2 text-left border">Agent</th>
+                             <th className="px-4 py-2 text-left border">Date</th>
                             <th className="px-4 py-2 text-left border">Bid Amount</th>
                             <th className="px-4 py-2 text-left border">Commission Amount</th>
                           </tr>
@@ -235,6 +237,8 @@ const CommissionReport = () => {
                               <tr key={market.marketId} className="border">
                                 <td className="px-4 py-2 border">{index + 1}</td>
                                 <td className="px-4 py-2 border">{market.marketName}</td>
+                                 <td className="px-4 py-2 border">{market.name}</td>
+                                <td className="px-4 py-2 border">{market.date}</td>
                                 <td className="px-4 py-2 border">{market.totalBidAmount}</td>
                                 <td className="px-4 py-2 border">{market.commission}</td>
                               </tr>
