@@ -16,6 +16,8 @@ interface Agent {
 interface MarketPartnership {
   marketId: number;
   marketName: string;
+  name: string;  // <- Add this
+  date: string;  // <- Add this
   totalBidAmount: string;
   totalWinAmount: string;
   bidPartnership: string;
@@ -242,6 +244,8 @@ if (selectedAgentId) {
                           <tr className="bg-gray-50">
                             <th className="px-4 py-2 text-left border">Sr No</th>
                             <th className="px-4 py-2 text-left border">Market</th>
+                                <th className="px-4 py-2 text-left border">Agent</th>
+               <th className="px-4 py-2 text-left border">Date</th>
                             <th className="px-4 py-2 text-left border">Bid Partnership</th>
                             <th className="px-4 py-2 text-left border">Win Partnership</th>
                             <th className="px-4 py-2 text-left border">Profit/Loss</th>
@@ -253,6 +257,8 @@ if (selectedAgentId) {
                               <tr key={market.marketId} className="border">
                                 <td className="px-4 py-2 border">{index + 1}</td>
                                 <td className="px-4 py-2 border">{market.marketName}</td>
+                                  <td className="px-4 py-2 border">{market.name}</td>
+  <td className="px-4 py-2 border">{market.date}</td>
                                 <td className="px-4 py-2 border">{market.bidPartnership}</td>
                                 <td className="px-4 py-2 border">{market.winPartnership}</td>
                                 <td className="px-4 py-2 border">{market.profitLoss}</td>

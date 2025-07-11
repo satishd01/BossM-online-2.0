@@ -17,6 +17,8 @@ interface MarketCommission {
   marketName: string;
   totalBidAmount: string;
   commission: string;
+   name: string;  // <- Add this
+  date: string;  // <- Add this
 }
 
 interface CommissionReportData {
